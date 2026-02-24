@@ -4,7 +4,7 @@ using Avalonia.Interactivity;
 
 namespace Laba1Avalonia;
 
-/// <summary>Диалог создания нового файла спецификаций.</summary>
+/// Диалог создания нового файла спецификаций.
 public partial class CreateFileDialog : Window
 {
     public string FileName { get; private set; } = "";

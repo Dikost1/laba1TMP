@@ -4,7 +4,7 @@ using Avalonia.Interactivity;
 
 namespace Laba1Avalonia;
 
-/// <summary>Простой диалог с сообщением.</summary>
+/// Простой диалог с сообщением.
 public partial class InfoDialog : Window
 {
     public new string Title { get; private set; } = "";

@@ -2,10 +2,8 @@ using System.Text;
 
 namespace SpecificationData;
 
-/// <summary>
 /// Менеджер для работы с многосвязными структурами данных:
 /// список изделий/узлов/деталей и список спецификаций.
-/// </summary>
 public class SpecificationManager
 {
     private const int ProductsHeaderSize = 2 + 4 + 4 + Constants.SpecFileNameSize; // 26 байт (длина записи 2 + указатели 8 + имя 16)
@@ -27,13 +25,13 @@ public class SpecificationManager
     private string _basePath = "";
     private bool _isOpen;
 
-    /// <summary>Путь к открытому файлу списка изделий.</summary>
+    /// Путь к открытому файлу списка изделий.
     public string? OpenedFilePath { get; private set; }
 
-    /// <summary>Открыты ли файлы для работы.</summary>
+    /// Открыты ли файлы для работы.
     public bool IsOpen => _isOpen;
 
-    /// <summary>Максимальная длина имени компонента в текущем файле.</summary>
+    /// Максимальная длина имени компонента в текущем файле.
     public int RecordLength => _recordLength;
 
     /// <summary>
@@ -49,13 +47,7 @@ public class SpecificationManager
         return b1 == 'P' && b2 == 'S';
     }
 
-    /// <summary>
     /// Создаёт новые файлы. Если файл существует и сигнатура верна — нужно подтверждение на перезапись.
-    /// </summary>
-    /// <param name="baseFileName">Базовое имя файла (без расширения).</param>
-    /// <param name="maxComponentNameLength">Максимальная длина имени компонента.</param>
-    /// <param name="specFileName">Имя файла спецификаций (опционально).</param>
-    /// <param name="overwrite">Подтверждение перезаписи, если файл существует.</param>
     public void Create(string baseFileName, int maxComponentNameLength, string? specFileName = null, bool overwrite = false)
     {
         var basePath = EnsureExtension(baseFileName, Constants.ProductsExtension);

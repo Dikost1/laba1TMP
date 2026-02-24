@@ -6,7 +6,7 @@ using SpecificationData;
 
 namespace Laba1Avalonia;
 
-/// <summary>Форма со списком компонентов (рис. 4 методички).</summary>
+/// Форма со списком компонентов.
 public partial class ComponentsWindow : Window
 {
     public ComponentsWindow()
@@ -15,7 +15,7 @@ public partial class ComponentsWindow : Window
         LoadComponents();
     }
 
-    /// <summary>Загружает и отображает список компонентов.</summary>
+    /// Загружает и отображает список компонентов.
     public void LoadComponents()
     {
         var list = MainWindow.Manager.PrintAll();
@@ -58,7 +58,7 @@ public partial class ComponentsWindow : Window
     }
 }
 
-/// <summary>Элемент для отображения в DataGrid.</summary>
+/// Элемент для отображения в DataGrid.
 public class ComponentItem
 {
     public string Name { get; set; } = "";

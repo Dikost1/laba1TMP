@@ -8,7 +8,7 @@ namespace Laba1Avalonia;
 
 public partial class MainWindow : Window
 {
-    /// <summary>Общий менеджер спецификаций для всего приложения.</summary>
+    /// Общий менеджер спецификаций для всего приложения.
     public static SpecificationManager Manager { get; } = new SpecificationManager();
 
     public MainWindow()
@@ -17,7 +17,7 @@ public partial class MainWindow : Window
         UpdateStatus();
     }
 
-    /// <summary>Обновляет строку статуса на главной форме.</summary>
+    /// Обновляет строку статуса на главной форме.
     public void UpdateStatus()
     {
         StatusText!.Text = Manager.IsOpen

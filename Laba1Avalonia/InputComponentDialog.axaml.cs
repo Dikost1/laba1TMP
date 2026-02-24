@@ -6,7 +6,7 @@ using SpecificationData;
 
 namespace Laba1Avalonia;
 
-/// <summary>Диалог добавления компонента.</summary>
+/// Диалог добавления компонента.
 public partial class InputComponentDialog : Window
 {
     public bool Result { get; private set; }

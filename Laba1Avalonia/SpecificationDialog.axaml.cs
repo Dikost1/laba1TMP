@@ -5,7 +5,7 @@ using SpecificationData;
 
 namespace Laba1Avalonia;
 
-/// <summary>Диалог добавления комплектующего в спецификацию (рис. 5 методички).</summary>
+/// Диалог добавления комплектующего в спецификацию.
 public partial class SpecificationDialog : Window
 {
     public bool Result { get; private set; }
