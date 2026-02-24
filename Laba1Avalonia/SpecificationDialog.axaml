@@ -1,0 +1,17 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Laba1Avalonia.SpecificationDialog"
+        Title="Добавить в спецификацию (рис. 5)"
+        Width="400" Height="150"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="15" Spacing="10">
+        <TextBlock Text="Компонент (владелец спецификации):"/>
+        <TextBox x:Name="ComponentBox" Watermark="Имя компонента"/>
+        <TextBlock Text="Комплектующее для добавления:"/>
+        <TextBox x:Name="AssemblyBox" Watermark="Имя комплектующего"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button x:Name="OkButton" Content="Добавить" Click="OnOkClick"/>
+            <Button x:Name="CancelButton" Content="Отмена" Click="OnCancelClick"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

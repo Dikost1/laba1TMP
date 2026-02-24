@@ -1,0 +1,24 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:local="using:Laba1Avalonia"
+        x:Class="Laba1Avalonia.ComponentsWindow"
+        Title="Список компонентов (рис. 4)"
+        Width="500" Height="400"
+        WindowStartupLocation="CenterOwner">
+    <DockPanel Margin="10">
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" Spacing="10" Margin="0,0,0,10">
+            <Button x:Name="AddComponentButton" Content="Добавить компонент" Click="OnAddComponentClick"/>
+            <Button x:Name="AddToSpecButton" Content="Добавить в спецификацию" Click="OnAddToSpecClick"/>
+        </StackPanel>
+        <ListBox x:Name="ComponentsList">
+            <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="local:ComponentItem">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock Text="{Binding Name}" FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding TypeName}" Foreground="Gray"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+    </DockPanel>
+</Window>

@@ -1,0 +1,28 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="500"
+        x:Class="Laba1Avalonia.MainWindow"
+        Title="Спецификации — Лабораторная работа 1"
+        Width="800" Height="500">
+    <DockPanel>
+        <!-- Меню главной формы (рис. 3 методички) -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="Файл" x:Name="FileMenu">
+                <MenuItem Header="Создать" x:Name="CreateMenuItem" Click="OnCreateClick"/>
+                <MenuItem Header="Открыть" x:Name="OpenMenuItem" Click="OnOpenClick"/>
+                <Separator/>
+                <MenuItem Header="Выход" x:Name="ExitMenuItem" Click="OnExitClick"/>
+            </MenuItem>
+            <MenuItem Header="Вид" x:Name="ViewMenu">
+                <MenuItem Header="Список компонентов" x:Name="ComponentsMenuItem" Click="OnShowComponentsClick"/>
+            </MenuItem>
+        </Menu>
+        <StackPanel DockPanel.Dock="Top" Margin="10" Spacing="5">
+            <TextBlock Text="Работа с многосвязными структурами данных" FontSize="16" FontWeight="Bold"/>
+            <TextBlock Text="Используйте меню для создания/открытия файлов и просмотра списка компонентов." TextWrapping="Wrap"/>
+            <TextBlock x:Name="StatusText" Text="Файл не открыт" Foreground="Gray"/>
+        </StackPanel>
+    </DockPanel>
+</Window>

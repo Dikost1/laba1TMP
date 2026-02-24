@@ -1,0 +1,19 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="Laba1Avalonia.CreateFileDialog"
+        Title="Создать файл"
+        Width="400" Height="200"
+        WindowStartupLocation="CenterOwner">
+    <StackPanel Margin="15" Spacing="10">
+        <TextBlock Text="Имя файла:"/>
+        <TextBox x:Name="FileNameBox" Watermark="data"/>
+        <TextBlock Text="Максимальная длина имени компонента:"/>
+        <TextBox x:Name="MaxLengthBox" Watermark="50"/>
+        <TextBlock Text="Имя файла спецификаций (необязательно):"/>
+        <TextBox x:Name="SpecFileBox" Watermark="по умолчанию .prs"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+            <Button x:Name="OkButton" Content="ОК" Click="OnOkClick"/>
+            <Button x:Name="CancelButton" Content="Отмена" Click="OnCancelClick"/>
+        </StackPanel>
+    </StackPanel>
+</Window>

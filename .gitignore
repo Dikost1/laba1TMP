@@ -1,0 +1,28 @@
+# Build results
+bin/
+obj/
+*.dll
+*.exe
+*.pdb
+
+# IDE
+.idea/
+.vscode/
+*.sln.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Documentation (optional - comment out if needed)
+*.md
+!README.md
+
+# Python
+*.py
+__pycache__/
+*.pyc
+
+# Temporary
+*.tmp
+*.log
