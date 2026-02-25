@@ -2,18 +2,18 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Laba1Avalonia.CreateFileDialog"
         Title="Создать файл"
-        Width="400" Height="200"
+        Width="500" Height="350"
         WindowStartupLocation="CenterOwner">
-    <StackPanel Margin="15" Spacing="10">
-        <TextBlock Text="Имя файла:"/>
-        <TextBox x:Name="FileNameBox" Watermark="data"/>
-        <TextBlock Text="Максимальная длина имени компонента:"/>
-        <TextBox x:Name="MaxLengthBox" Watermark="50"/>
-        <TextBlock Text="Имя файла спецификаций (необязательно):"/>
-        <TextBox x:Name="SpecFileBox" Watermark="по умолчанию .prs"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-            <Button x:Name="OkButton" Content="ОК" Click="OnOkClick"/>
-            <Button x:Name="CancelButton" Content="Отмена" Click="OnCancelClick"/>
+    <StackPanel Margin="20" Spacing="12">
+        <TextBlock Text="Имя файла:" FontSize="14" FontWeight="Bold"/>
+        <TextBox x:Name="FileNameBox" Watermark="data" Height="32" Padding="8"/>
+        <TextBlock Text="Максимальная длина имени компонента:" FontSize="14" FontWeight="Bold"/>
+        <TextBox x:Name="MaxLengthBox" Watermark="50" Height="32" Padding="8"/>
+        <TextBlock Text="Имя файла спецификаций (необязательно):" FontSize="14" FontWeight="Bold"/>
+        <TextBox x:Name="SpecFileBox" Watermark="по умолчанию .prs" Height="32" Padding="8"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="15" Margin="0,15,0,0">
+            <Button x:Name="OkButton" Content="ОК" Click="OnOkClick" Width="100" Height="36" FontSize="14"/>
+            <Button x:Name="CancelButton" Content="Отмена" Click="OnCancelClick" Width="100" Height="36" FontSize="14"/>
         </StackPanel>
     </StackPanel>
 </Window>

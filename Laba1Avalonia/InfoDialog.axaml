@@ -3,10 +3,10 @@
         xmlns:local="using:Laba1Avalonia"
         x:Class="Laba1Avalonia.InfoDialog"
         x:Name="Self"
-        Width="350" Height="150"
+        Width="450" Height="220"
         WindowStartupLocation="CenterOwner">
-    <StackPanel Margin="15" Spacing="10" x:DataType="local:InfoDialog">
-        <TextBlock x:Name="MessageText" Text="{Binding Message}" TextWrapping="Wrap"/>
-        <Button x:Name="OkButton" Content="ОК" HorizontalAlignment="Right" Click="OnOkClick"/>
+    <StackPanel Margin="20" Spacing="15" x:DataType="local:InfoDialog">
+        <TextBlock x:Name="MessageText" Text="{Binding Message}" TextWrapping="Wrap" FontSize="14"/>
+        <Button x:Name="OkButton" Content="ОК" HorizontalAlignment="Right" Click="OnOkClick" Width="100" Height="36" FontSize="14"/>
     </StackPanel>
 </Window>

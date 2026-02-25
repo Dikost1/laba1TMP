@@ -2,16 +2,16 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="Laba1Avalonia.InputComponentDialog"
         Title="Добавить компонент"
-        Width="350" Height="180"
+        Width="450" Height="280"
         WindowStartupLocation="CenterOwner">
-    <StackPanel Margin="15" Spacing="10">
-        <TextBlock Text="Имя компонента:"/>
-        <TextBox x:Name="NameBox" Watermark="Введите имя"/>
-        <TextBlock Text="Тип (Изделие, Узел, Деталь):"/>
-        <ComboBox x:Name="TypeCombo" SelectedIndex="0"/>
-        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
-            <Button x:Name="OkButton" Content="ОК" Click="OnOkClick"/>
-            <Button x:Name="CancelButton" Content="Отмена" Click="OnCancelClick"/>
+    <StackPanel Margin="20" Spacing="12">
+        <TextBlock Text="Имя компонента:" FontSize="14" FontWeight="Bold"/>
+        <TextBox x:Name="NameBox" Watermark="Введите имя" Height="32" Padding="8"/>
+        <TextBlock Text="Тип (Изделие, Узел, Деталь):" FontSize="14" FontWeight="Bold"/>
+        <ComboBox x:Name="TypeCombo" SelectedIndex="0" Height="32" Padding="8" FontSize="13"/>
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="15" Margin="0,15,0,0">
+            <Button x:Name="OkButton" Content="ОК" Click="OnOkClick" Width="100" Height="36" FontSize="14"/>
+            <Button x:Name="CancelButton" Content="Отмена" Click="OnCancelClick" Width="100" Height="36" FontSize="14"/>
         </StackPanel>
     </StackPanel>
 </Window>
