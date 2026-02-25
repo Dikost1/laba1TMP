@@ -5,13 +5,16 @@ using System.Text;
 
 namespace SpecificationData;
 
-/// Менеджер для работы со списком компонентов и спецификациями.
+// SpecificationManager — основной класс для управления файлами компонентов и спецификаций.
+// Предоставляет операции: Create/Open/Close, добавление компонентов, добавление/удаление
+// комплектующих (спецификаций), логическое удаление/восстановление, а также печать данных.
+// Комментарии и документация метода местами упрощены для понятности на русском.
 public class SpecificationManager
 {
     private const int ProductsHeaderSize = 3 + 2 + 4 + 4 + Constants.SpecFileNameSize; // sig(3)+reserved(2)+headerSize(4)+recordLength(4)+spec name
-    private const int ProductsRecordOverhead = 1 + 4 + 4 + 1; // delete + ptr spec + ptr next + type(byte)
-    private const int SpecHeaderSize = 4 + 4; // ptr first (unused) + ptr free
-    private const int SpecRecordSize = 1 + 4 + 2 + 4; // delete + ptr product + multiplicity + ptr next
+    private const int ProductsRecordOverhead = 1 + 4 + 4 + 1; // флаг удаления + указатель на спецификацию + указатель на следующую запись + тип (байт)
+    private const int SpecHeaderSize = 4 + 4; // первый указатель (не используется) + указатель на свободную область
+    private const int SpecRecordSize = 1 + 4 + 2 + 4; // флаг удаления + указатель на продукт + кратность (short) + указатель на следующую запись
 
     private BinaryWriter? _productsWriter;
     private BinaryReader? _productsReader;
@@ -64,7 +67,7 @@ public class SpecificationManager
         using (var pwr = new BinaryWriter(pfs, Encoding.UTF8, leaveOpen: false))
         {
             pwr.Write(Encoding.ASCII.GetBytes("PS2"));
-            pwr.Write((short)0); // reserved
+            pwr.Write((short)0); // зарезервировано
             pwr.Write(ProductsHeaderSize);
             pwr.Write(_recordLength);
             var nameBuf = new byte[Constants.SpecFileNameSize];
@@ -72,7 +75,7 @@ public class SpecificationManager
             Array.Copy(specNameBytes, nameBuf, Math.Min(nameBuf.Length, specNameBytes.Length));
             pwr.Write(nameBuf);
 
-            // header: firstRecordOffset, reserved
+            // заголовок: указатель на первую запись, зарезервированное поле
             pwr.Write(Constants.NullPointer);
             pwr.Write(Constants.NullPointer);
             pwr.Flush();
@@ -104,15 +107,15 @@ public class SpecificationManager
         _productsWriter = new BinaryWriter(_productsStream, Encoding.UTF8, leaveOpen: true);
 
         _productsStream.Seek(0, SeekOrigin.Begin);
-        _productsReader.ReadBytes(3); // "PS2"
-        _productsReader.ReadInt16(); // reserved
-        _productsReader.ReadInt32(); // headerSize
+        _productsReader.ReadBytes(3); // сигнатура "PS2"
+        _productsReader.ReadInt16(); // зарезервировано
+        _productsReader.ReadInt32(); // размер заголовка
         _recordLength = _productsReader.ReadInt32();
         var nameBytes = _productsReader.ReadBytes(Constants.SpecFileNameSize);
         _specFileName = Encoding.ASCII.GetString(nameBytes).TrimEnd('\0', ' ');
 
         _firstRecordOffset = _productsReader.ReadInt32();
-        _productsReader.ReadInt32(); // reserved
+        _productsReader.ReadInt32(); // зарезервировано
 
         var specFullPath = Path.Combine(Path.GetDirectoryName(basePath) ?? ".", _specFileName);
         if (!File.Exists(specFullPath))
@@ -199,7 +202,7 @@ public class SpecificationManager
             throw new InvalidOperationException("Компонент является деталью и не может иметь спецификацию.");
 
         _specStream!.Seek(0, SeekOrigin.Begin);
-        _specReader!.ReadInt32(); // first header (unused)
+        _specReader!.ReadInt32(); // первый указатель в заголовке (не используется)
         var freePtr = _specReader.ReadInt32();
 
         var newSpecOffset = freePtr;
@@ -215,7 +218,7 @@ public class SpecificationManager
         _specStream.Seek(sizeof(int), SeekOrigin.Begin);
         _specWriter.Write(updatedFree);
 
-        _productsStream!.Seek(ownerOffset + 1, SeekOrigin.Begin); // after delete flag
+        _productsStream!.Seek(ownerOffset + 1, SeekOrigin.Begin); // позиция после флага удаления
         _productsWriter!.Write(newSpecOffset);
 
         _productsStream.Flush();
@@ -284,8 +287,6 @@ public class SpecificationManager
     public void Truncate()
     {
         EnsureOpen();
-        // простой вариант — ничего не делать, но метод должен существовать.
-        // Более правильная реализация требует перестройки файлов и переноса активных записей.
         _productsWriter!.Flush();
         _specWriter!.Flush();
     }
@@ -298,7 +299,8 @@ public class SpecificationManager
         while (cur != Constants.NullPointer)
         {
             var r = ReadProductRecord(cur);
-            result.Add((r.Name, r.Type));
+            if (!r.Deleted)
+                result.Add((r.Name, r.Type));
             cur = r.NextOffset;
         }
         return result;
@@ -311,6 +313,8 @@ public class SpecificationManager
         if (offset == Constants.NullPointer)
             throw new InvalidOperationException("Компонент не найден.");
         var rec = ReadProductRecord(offset);
+        if (rec.Deleted)
+            throw new InvalidOperationException("Компонент удалён.");
         if (rec.Type == ComponentType.Part)
             throw new InvalidOperationException("Для детали эта команда вызывает ошибку.");
         return BuildSpecificationTree(offset, "");
@@ -322,9 +326,34 @@ public class SpecificationManager
         var offset = FindComponentOffset(name);
         if (offset == Constants.NullPointer)
             throw new InvalidOperationException("Компонент не найден.");
+        // Cascade: mark all spec records that reference this component as deleted
+        var cur = _firstRecordOffset;
+        while (cur != Constants.NullPointer)
+        {
+            var rec = ReadProductRecord(cur);
+            var specOffset = rec.FirstSpecOffset;
+            while (specOffset != Constants.NullPointer)
+            {
+                _specStream!.Seek(specOffset, SeekOrigin.Begin);
+                var del = _specReader!.ReadSByte();
+                var ptrProduct = _specReader.ReadInt32();
+                var mult = _specReader.ReadInt16();
+                var next = _specReader.ReadInt32();
+                if (del != Constants.DeleteFlagDeleted && ptrProduct == offset)
+                {
+                    _specStream.Seek(specOffset, SeekOrigin.Begin);
+                    _specWriter!.Write(Constants.DeleteFlagDeleted);
+                }
+                specOffset = next;
+            }
+            cur = rec.NextOffset;
+        }
+
+
         _productsStream!.Seek(offset, SeekOrigin.Begin);
         _productsWriter!.Write(Constants.DeleteFlagDeleted);
         _productsStream.Flush();
+        _specStream.Flush();
     }
 
     public void RestoreComponent(string name)
@@ -343,12 +372,12 @@ public class SpecificationManager
         EnsureOpen();
 
         _productsStream!.Seek(0, SeekOrigin.End);
-        var newOffset = (int)_productsStream.Position;
+        var newOffset = (int)_productsStream.Position; // смещение для новой записи
 
         _productsWriter!.Write(Constants.DeleteFlagActive);
         _productsWriter.Write(firstSpec);
-        _productsWriter.Write(Constants.NullPointer); // next
-        _productsWriter.Write((byte)type);
+        _productsWriter.Write(Constants.NullPointer); // указатель на следующую запись
+        _productsWriter.Write((byte)type); // тип компонента
 
         var nameBytes = new byte[_recordLength];
         var b = Encoding.UTF8.GetBytes(name);
@@ -426,6 +455,31 @@ public class SpecificationManager
         return current + SpecRecordSize;
     }
 
+    private bool IsReferencedInAnySpec(int offset)
+    {
+        var current = _firstRecordOffset;
+        while (current != Constants.NullPointer)
+        {
+            var record = ReadProductRecord(current);
+            if (!record.Deleted && record.FirstSpecOffset != Constants.NullPointer && current != offset)
+            {
+                var specOffset = record.FirstSpecOffset;
+                while (specOffset != Constants.NullPointer)
+                {
+                    _specStream!.Seek(specOffset, SeekOrigin.Begin);
+                    var del = _specReader!.ReadSByte();
+                    var ptrProduct = _specReader.ReadInt32();
+                    if (del != Constants.DeleteFlagDeleted && ptrProduct == offset)
+                        return true;
+                    _specReader.ReadInt16();
+                    specOffset = _specReader.ReadInt32();
+                }
+            }
+            current = record.NextOffset;
+        }
+        return false;
+    }
+
     private string BuildSpecificationTree(int componentOffset, string prefix)
     {
         var record = ReadProductRecord(componentOffset);
@@ -442,7 +496,9 @@ public class SpecificationManager
             var next = _specReader.ReadInt32();
             if (del != Constants.DeleteFlagDeleted)
             {
-                sb.Append(BuildSpecificationTree(ptrProduct, prefix + "  "));
+                var child = ReadProductRecord(ptrProduct);
+                if (!child.Deleted)
+                    sb.Append(BuildSpecificationTree(ptrProduct, prefix + "  "));
             }
             specOffset = next;
         }
