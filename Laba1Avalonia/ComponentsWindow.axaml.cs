@@ -7,6 +7,8 @@ using SpecificationData;
 namespace Laba1Avalonia;
 
 /// Форма со списком компонентов.
+// Окно для отображения и управления списком компонентов и спецификациями.
+// Использует `SpecificationManager` для операций над базой данных компонентов.
 public partial class ComponentsWindow : Window
 {
     public ComponentsWindow()

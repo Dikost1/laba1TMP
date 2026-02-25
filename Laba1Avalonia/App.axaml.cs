@@ -1,3 +1,5 @@
+// Главный класс приложения Avalonia. Инициализирует XAML и создаёт главное окно.
+using System;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;

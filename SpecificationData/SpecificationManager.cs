@@ -191,7 +191,8 @@ public class SpecificationManager
         EnsureOpen();
 
         var ownerOffset = FindComponentOffset(ownerName);
-        var compOffset = FindComponentOffset(compName);
+        // ищем комплектующее включая удаленные (например при восстановлении)
+        var compOffset = FindComponentOffsetIncludingDeleted(compName);
         if (ownerOffset == Constants.NullPointer)
             throw new InvalidOperationException("Владелец не найден в списке.");
         if (compOffset == Constants.NullPointer)
@@ -299,8 +300,8 @@ public class SpecificationManager
         while (cur != Constants.NullPointer)
         {
             var r = ReadProductRecord(cur);
-            if (!r.Deleted)
-                result.Add((r.Name, r.Type));
+            // Показываем все компоненты, включая логически удаленные (скрывается на уровне UI)
+            result.Add((r.Name, r.Type));
             cur = r.NextOffset;
         }
         return result;
@@ -326,40 +327,19 @@ public class SpecificationManager
         var offset = FindComponentOffset(name);
         if (offset == Constants.NullPointer)
             throw new InvalidOperationException("Компонент не найден.");
-        // Cascade: mark all spec records that reference this component as deleted
-        var cur = _firstRecordOffset;
-        while (cur != Constants.NullPointer)
-        {
-            var rec = ReadProductRecord(cur);
-            var specOffset = rec.FirstSpecOffset;
-            while (specOffset != Constants.NullPointer)
-            {
-                _specStream!.Seek(specOffset, SeekOrigin.Begin);
-                var del = _specReader!.ReadSByte();
-                var ptrProduct = _specReader.ReadInt32();
-                var mult = _specReader.ReadInt16();
-                var next = _specReader.ReadInt32();
-                if (del != Constants.DeleteFlagDeleted && ptrProduct == offset)
-                {
-                    _specStream.Seek(specOffset, SeekOrigin.Begin);
-                    _specWriter!.Write(Constants.DeleteFlagDeleted);
-                }
-                specOffset = next;
-            }
-            cur = rec.NextOffset;
-        }
-
+        // Проверяем, есть ли ссылки на этот компонент в спецификациях
+        if (IsReferencedInAnySpec(offset))
+            throw new InvalidOperationException("На компонент имеются ссылки в спецификациях других компонентов.");
 
         _productsStream!.Seek(offset, SeekOrigin.Begin);
         _productsWriter!.Write(Constants.DeleteFlagDeleted);
         _productsStream.Flush();
-        _specStream.Flush();
     }
 
     public void RestoreComponent(string name)
     {
         EnsureOpen();
-        var offset = FindComponentOffset(name);
+        var offset = FindComponentOffsetIncludingDeleted(name);
         if (offset == Constants.NullPointer)
             throw new InvalidOperationException("Компонент не найден.");
         _productsStream!.Seek(offset, SeekOrigin.Begin);
@@ -430,6 +410,27 @@ public class SpecificationManager
             var nameBytes = _productsReader.ReadBytes(_recordLength);
             var recName = Encoding.UTF8.GetString(nameBytes).TrimEnd('\0', ' ');
             if (del != Constants.DeleteFlagDeleted && recName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                return cur;
+            cur = next;
+        }
+        return Constants.NullPointer;
+    }
+
+    // поиск компонента включая удаленные (для восстановления и добавления в спецификацию)
+    private int FindComponentOffsetIncludingDeleted(string name)
+    {
+        EnsureOpen();
+        var cur = _firstRecordOffset;
+        while (cur != Constants.NullPointer)
+        {
+            _productsStream!.Seek(cur, SeekOrigin.Begin);
+            _productsReader!.ReadSByte(); // skip delete flag
+            _productsReader.ReadInt32(); // skip firstSpec
+            var next = _productsReader.ReadInt32();
+            _productsReader.ReadByte(); // skip type
+            var nameBytes = _productsReader.ReadBytes(_recordLength);
+            var recName = Encoding.UTF8.GetString(nameBytes).TrimEnd('\0', ' ');
+            if (recName.Equals(name, StringComparison.OrdinalIgnoreCase))
                 return cur;
             cur = next;
         }

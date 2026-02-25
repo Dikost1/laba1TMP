@@ -19,7 +19,8 @@ internal static class Constants
     public const int DeleteFlagSize = 1;
 
     /// Максимальная длина имени файла спецификаций в заголовке.
-    public const int SpecFileNameSize = 16;
+    // Максимальная длина имени файла спецификаций, хранимая в заголовке
+    public const int SpecFileNameSize = 32;
 
     /// Расширение файла списка изделий.
     public const string ProductsExtension = ".prd";
@@ -28,8 +29,9 @@ internal static class Constants
     public const string SpecsExtension = ".prs";
 
     /// Бит удаления: запись активна.
+    // Флаги удаления: 1 — удалено, 0 — активно
     public const sbyte DeleteFlagActive = 0;
 
     /// Бит удаления: запись помечена на удаление.
-    public const sbyte DeleteFlagDeleted = -1;
+    public const sbyte DeleteFlagDeleted = 1;
 }
